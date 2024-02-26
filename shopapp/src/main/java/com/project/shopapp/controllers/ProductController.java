@@ -22,7 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -66,8 +66,18 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok("Get Product id: " + id);
+    public ResponseEntity<?> getProduct(
+            @PathVariable("id") Long id) {
+
+        try{
+            Product existingProduct = productService .getProductById(id);
+            return ResponseEntity.ok(ProductResponse.convertFromProduct(existingProduct));
+
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @PostMapping(value = "")
@@ -153,34 +163,34 @@ public class ProductController {
        }
     }
 
-    public String storeFile(MultipartFile file) throws IOException{
-        if(!isImageFile(file) || file.getOriginalFilename() == null ) {
-            throw new IOException("Invalid image format");
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ProductDTO productDTO) {
+
+        try{
+            Product updatedProduct = productService.updateProduct(id, productDTO);
+            return ResponseEntity.ok(updatedProduct);
+
         }
-
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
-        Path uploadDir = Paths.get("uploads");
-
-        if(!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
-        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return uniqueFileName;
-
     }
-
-    public boolean isImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && contentType.startsWith("image/");
-    }
-
     @DeleteMapping("/{id}")
-    public  ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        return ResponseEntity.ok("Delete product id: " + id);
+    public  ResponseEntity<?> deleteProduct(@PathVariable("id") Long id) {
+
+        try{
+            productService.deleteProduct(id);
+            return ResponseEntity.ok("Delete product id: " + id);
+
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
 
@@ -210,9 +220,33 @@ public class ProductController {
            catch (Exception e) {
                return ResponseEntity.badRequest().body(e.getMessage());
            }
+        }
+        return ResponseEntity.ok("Fake products created successfully");
+    }
 
+
+    public String storeFile(MultipartFile file) throws IOException{
+        if(!isImageFile(file) || file.getOriginalFilename() == null ) {
+            throw new IOException("Invalid image format");
         }
 
-        return ResponseEntity.ok("Fake products created successfully");
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+
+        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+        Path uploadDir = Paths.get("uploads");
+
+        if(!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+
+        Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
+        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+        return uniqueFileName;
+
+    }
+
+    public boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
 }
