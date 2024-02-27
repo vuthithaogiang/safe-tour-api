@@ -4,19 +4,19 @@ package com.project.shopapp.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 
 @Entity
 @Table(name = "orders")
-@Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Order {
+public class Order  {
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -44,7 +44,7 @@ public class Order {
     private String note;
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private Date orderDate;
 
 
     @Column(name = "status")
@@ -61,7 +61,7 @@ public class Order {
     private String shippingAddress;
 
     @Column(name = "shipping_date")
-    private Date shippingDate;
+    private LocalDate shippingDate;
 
     @Column(name = "tracking_number", length = 100)
     private String trackingNumber;
