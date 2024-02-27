@@ -11,7 +11,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDetailsDTO {
+public class OrderDetailDTO {
 
 
     @JsonProperty("order_id")
