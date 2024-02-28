@@ -32,14 +32,27 @@ public class WebSecurityConfig {
                          UsernamePasswordAuthenticationFilter.class)
                  .authorizeHttpRequests(requests -> {
                      requests.
+                             //pass by
                              requestMatchers(
 
                                      String.format("%s/users/register", apiPrefix),
                                      String.format("%s/users/login", apiPrefix)
                              )
                              .permitAll()
+
+                             //orders
+                             .requestMatchers(HttpMethod.POST,
+                                     String.format("%s/orders", apiPrefix)).hasRole("USER")
+
+                             .requestMatchers(HttpMethod.GET,
+                                     String.format("%s/orders/**", apiPrefix)).hasAnyRole("USER", "ADMIN")
+
                              .requestMatchers(HttpMethod.PUT,
-                                     String.format("%s/orders", apiPrefix)).hasRole("ADMIN")
+                                     String.format("%s/orders/**", apiPrefix)).hasRole("ADMIN")
+
+                             .requestMatchers(HttpMethod.DELETE,
+                                     String.format("%s/orders/**", apiPrefix)).hasRole("ADMIN")
+
                              .anyRequest().authenticated()
                      ;
 
