@@ -11,9 +11,9 @@ import java.util.List;
 
 
 public interface IUserService {
-    User register(UserDTO userDTO) throws DataNotFoundException;
+    User register(UserDTO userDTO) throws Exception ;
 
-    String login(UserLoginDTO userLoginDTO);
+    String login(UserLoginDTO userLoginDTO) throws Exception;
 
 
     List<User> getAllUsers();

@@ -164,7 +164,7 @@ public class ProductController {
     }
 
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<?> updateProduct(
             @PathVariable("id") Long id,
             @Valid @RequestBody ProductDTO productDTO) {
