@@ -1,9 +1,9 @@
-package com.project.shopapp.utils;
+package com.project.shopapp.components;
 
+import com.project.shopapp.utils.WebUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -18,8 +18,9 @@ public class LocalizationUtil {
 
     private final LocaleResolver localeResolver;
 
-    public String getLocalizationMessage(String messageKey, HttpServletRequest request){
+    public String getLocalizationMessage(String messageKey, Object ... params){ //spread operator
+        HttpServletRequest request = WebUtil.getCurrentRequest();
         Locale locale = localeResolver.resolveLocale(request);
-        return messageSource.getMessage(messageKey, null, locale);
+        return messageSource.getMessage(messageKey, params, locale);
     }
 }

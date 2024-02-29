@@ -21,11 +21,15 @@ public class CategoryService implements  ICategoryService{
 
     @Override
     public Category createCategory(CategoryDTO categoryDTO) {
-        Category newCategory = Category
-                .builder()
-                .name(categoryDTO.getName())
-                .build();
-        return   categoryRepository.save(newCategory);
+            if(categoryRepository.existsByName(categoryDTO.getName())) {
+                throw  new RuntimeException("Category's name have existed");
+            }
+
+            Category newCategory = Category
+                    .builder()
+                    .name(categoryDTO.getName())
+                    .build();
+            return  categoryRepository.save(newCategory);
 
     }
 

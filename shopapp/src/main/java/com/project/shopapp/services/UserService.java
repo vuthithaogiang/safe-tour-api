@@ -90,7 +90,7 @@ public class UserService implements IUserService{
         existingUser.getGoogleAccountId() == 0) {
             if(!passwordEncoder.matches(userLoginDTO.getPassword(),
                     existingUser.getPassword())){
-                throw  new BadCredentialsException("Wrong phone number or password");
+                throw new BadCredentialsException("Wrong phone number or password");
             }
         }
 
