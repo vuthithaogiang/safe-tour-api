@@ -4,15 +4,22 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
+import com.project.shopapp.responses.DeleteCategoryResponse;
+import com.project.shopapp.responses.UpdateCategoryResponse;
+import com.project.shopapp.utils.LocalizationUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import com.project.shopapp.services.CategoryService;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.List;
+import java.util.Locale;
 
 
 @RestController
@@ -22,6 +29,8 @@ public class CategoryController {
 
     //Dependency Injection Service
     private final CategoryService categoryService;
+
+    private final LocalizationUtil localizationUtil;
 
 
 //    @Autowired
@@ -39,8 +48,8 @@ public class CategoryController {
 
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        categoryService.createCategory(categoryDTO);
-        return ResponseEntity.ok("Insert category successfully.");
+        Category category =  categoryService.createCategory(categoryDTO);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping() //http://localhost/8088/api/v1/categories?page=1&limit=20
@@ -56,15 +65,61 @@ public class CategoryController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO){
-        categoryService.updateCategory(id, categoryDTO);
-        return ResponseEntity.ok("Update category id: " + id + " successfully");
+    public ResponseEntity<?> updateCategory(@PathVariable Long id,
+                                            @Valid @RequestBody CategoryDTO categoryDTO,
+                                            BindingResult result,
+                                            HttpServletRequest request
+
+    ){
+
+        try{
+            if(result.hasErrors()) {
+                List<String> errorMessages =  result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+
+                return ResponseEntity.badRequest().body(errorMessages);
+            }
+            categoryService.updateCategory(id, categoryDTO);
+
+            return ResponseEntity.ok(UpdateCategoryResponse.builder()
+                            .message(localizationUtil.getLocalizationMessage(
+                                    "category.update.update_successfully", request))
+                            .build());
+
+        }catch (Exception e) {
+            return  ResponseEntity.badRequest().body(UpdateCategoryResponse.builder()
+                            .message(e.getMessage())
+                    .build());
+
+        }
+
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok("Delete category id: " + id + " successfully");
+    public ResponseEntity<DeleteCategoryResponse> deleteCategory(@PathVariable Long id,
+                                                                 HttpServletRequest request) {
+
+        try{
+            categoryService.deleteCategory(id);
+
+            return ResponseEntity.ok(DeleteCategoryResponse.builder()
+                            .message(localizationUtil.getLocalizationMessage("category.delete.delete_successfully",
+                                    request))
+                    .build());
+
+        }
+
+        catch (Exception e) {
+
+            return ResponseEntity.badRequest().body(DeleteCategoryResponse.builder()
+                            .message(e.getMessage())
+                    .build());
+
+        }
+
     }
 
 }
